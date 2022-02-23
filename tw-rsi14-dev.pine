@@ -43,11 +43,11 @@ xDown = ta.crossover(emaRSI, smaRSI)
 lowestBefore  = ta.lowest(rsi, lowestBeforeLenght)
 highestBefore = ta.highest(rsi, highestBeforeLenght)
 
-if (xUp and smaRSI >= 34 and smaRSI < 50)
+if (xUp and smaRSI >= 34 and smaRSI < 50 and lowestBefore < 35)
     // Trigger alert
     alert("Price (" + str.tostring(close) + ") crossed over EMA (" + str.tostring(smaRSI) +  ").", alert.freq_once_per_bar_close)
     
-if (xDown and smaRSI >= 50 and smaRSI < 67)
+if (xDown and smaRSI >= 50 and smaRSI < 67 and highestBefore > 66 )
     alert("Price (" + str.tostring(close) + ") crossed over SMA (" + str.tostring(emaRSI) +  ").", alert.freq_once_per_bar_close)
 
 makeShapeSMAUp = if (xUp and smaRSI >= 34 and smaRSI < 50 and lowestBefore < 35)
@@ -79,3 +79,4 @@ plotshape(series=makeShapeSMAUp,   style=shape.triangleup,   location=location.b
 plotshape(series=makeShapeSMADown, style=shape.triangledown, location=location.top,    color=color.red,   size=size.tiny)
 //Plott all RSI cross into Bear direction regardless of previous RSI value
 //plotshape(series=makeShapeSMADownAll, style=shape.triangledown, location=location.bottom,    color=color.orange,   size=size.tiny)
+
