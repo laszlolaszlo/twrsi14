@@ -1,0 +1,81 @@
+//@version=5
+indicator("Kripto Akademia RSI DEV")
+src = close, 
+rsilen = input.int(14, minval=1, title="RSI Length")
+smalen = input.int(9, minval=1, maxval=10, title="SMA of RSI Length")
+emalen = input.int(39, minval=39, maxval=42, title="EMA of RSI Length") 
+
+//Search pivot low and high before number of periods/bar
+var int lowestBeforeLenght = 12
+var int highestBeforeLenght = 12
+
+smaRSI = ta.sma(ta.rsi(close, rsilen), smalen)
+emaRSI = ta.ema(ta.rsi(close, rsilen), emalen)
+
+t1Close = time_close("","","Europe/Budapest")
+
+rsi = ta.rsi(close, rsilen)
+
+band2 = hline(85, title="Upper Line for bullish control zone", linestyle=hline.style_solid, linewidth=1,color=color.new(color.black,100))
+band3 = hline(67, title="Lower line for bullish control zone", linestyle=hline.style_solid, linewidth=1, color=color.new(color.black,100))
+band1 = hline(34, title="Upper line for bearish control zone", linestyle=hline.style_solid, linewidth=1, color=color.new(color.black,100))
+band0 = hline(15, title="Lower line for bearish control zone", linestyle=hline.style_solid, linewidth=1, color=color.new(color.black,100))
+band4 = hline(38, title="Lower line for bull support zone", linestyle=hline.style_solid, linewidth=1, color=color.new(color.black,100))
+band5 = hline(50, title="Upper line for bull support zone", linestyle=hline.style_solid, linewidth=1, color=color.new(color.black,100))
+band6 = hline(63, title="Upper line for bearish resistance zone", linestyle=hline.style_solid, linewidth=1, color=color.new(color.black,100))
+
+fill(band1, band0, color=color.new(color.gray,80), title="bearish control zone fill")
+fill(band1, band4, color=color.new(color.white,85), title="nomans land zone fill")
+fill(band4, band5, color=color.new(color.blue,80), title="bull support zone fill")
+fill(band5, band6, color=color.new(color.gray,80), title="bearish resistance zone fill")
+fill(band6, band3, color=color.new(color.white,85), title="nomans land zone fill")
+fill(band3, band2, color=color.new(color.blue,80), title="bullish resistance zone fill")
+
+
+plot(rsi, title="RSI", color=color.new(color.rgb(66,98,251,0), 0), style=plot.style_line, linewidth=1)
+
+plot(smaRSI, title="SMA of RSI", color=color.new(color.black, 0), style=plot.style_line, linewidth=1)
+plot(emaRSI, title="EMA of RSI", color=color.new(color.red, 0), style=plot.style_line, linewidth=1)
+
+xUp   = ta.crossover(smaRSI,emaRSI)
+xDown = ta.crossover(emaRSI, smaRSI)
+
+lowestBefore  = ta.lowest(rsi, lowestBeforeLenght)
+highestBefore = ta.highest(rsi, highestBeforeLenght)
+
+if (xUp and smaRSI >= 34 and smaRSI < 50)
+    // Trigger alert
+    alert("Price (" + str.tostring(close) + ") crossed over EMA (" + str.tostring(smaRSI) +  ").", alert.freq_once_per_bar_close)
+    
+if (xDown and smaRSI >= 50 and smaRSI < 67)
+    alert("Price (" + str.tostring(close) + ") crossed over SMA (" + str.tostring(emaRSI) +  ").", alert.freq_once_per_bar_close)
+
+makeShapeSMAUp = if (xUp and smaRSI >= 34 and smaRSI < 50 and lowestBefore < 35)
+    true
+else
+    false
+
+makeShapeSMAUpAll = if (xUp and smaRSI >= 34 and smaRSI < 50)
+    true
+else
+    false
+
+    
+makeShapeSMADown = if (xDown and smaRSI >= 50 and smaRSI < 67 and highestBefore > 66 )
+    true
+else
+    false
+
+makeShapeSMADownAll = if (xDown and smaRSI >= 50 and smaRSI < 67)
+    true
+else
+    false
+
+
+plotshape(series=makeShapeSMAUp,   style=shape.triangleup,   location=location.bottom, color=color.green, size=size.tiny)
+//Plott all RSI cross into Bull direction regardless of previous RSI value
+//plotshape(series=makeShapeSMAUpAll, style=shape.triangleup, location=location.top,    color=color.purple,   size=size.tiny)
+
+plotshape(series=makeShapeSMADown, style=shape.triangledown, location=location.top,    color=color.red,   size=size.tiny)
+//Plott all RSI cross into Bear direction regardless of previous RSI value
+//plotshape(series=makeShapeSMADownAll, style=shape.triangledown, location=location.bottom,    color=color.orange,   size=size.tiny)
