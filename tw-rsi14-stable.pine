@@ -1,5 +1,5 @@
 //@version=5
-indicator("RSI SMA/EMA DEV #1")
+indicator("RSI SMA/EMA")
 src = close, 
 rsilen = input.int(14, minval=1, title="RSI Length")
 smalen = input.int(9, minval=1, maxval=10, title="SMA of RSI Length")
